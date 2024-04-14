@@ -40,7 +40,7 @@ async def stream_text_file(ft_path):
     try:
         while True:
             cnt += 1
-            line = f.readline()
+            line = f.readline(5_000_000)
             if not line:
                 if anything_new_ts + 600 < time.time():
                     break

@@ -324,7 +324,7 @@ def _reset_process_stats():
 async def stream_text_file(fn):
     f = open(fn, "r")
     while True:
-        line = f.readline()
+        line = f.readline(5_000_000)
         if not line:
             break
         yield line
