@@ -322,9 +322,9 @@ def _reset_process_stats():
 
 
 async def stream_text_file(fn):
-    f = open(fn, "r")
-    while True:
-        line = f.readline()
-        if not line:
-            break
-        yield line
+    with open(fn, "r") as f:
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            yield line
