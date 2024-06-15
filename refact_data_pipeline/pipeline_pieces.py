@@ -3,7 +3,6 @@ import datetime
 import gzip
 import itertools
 import os
-import random
 import traceback
 from typing import List, Union, Iterable
 
@@ -18,6 +17,7 @@ from refact_data_pipeline.datadef import DatasetMix
 from refact_data_pipeline.datadef import DatasetOpts
 from refact_data_pipeline.filters_hdfs import Hdf5Dataset
 from refact_data_pipeline.filters_packing import Packer, SinglePacker, DensePacker
+import secrets
 
 log = print
 
@@ -228,7 +228,7 @@ class Shuffle:
     ):
         self.inner_filter = inner_filter
         self.shuffle_depth: int = dataopts.get("shuffle_depth", 1000)
-        self.random_state = random.Random(dataopts.get("seed", 42))
+        self.random_state = secrets.SystemRandom().Random(dataopts.get("seed", 42))
 
     def __iter__(self):
         buf = []
@@ -254,7 +254,7 @@ class Mix:
         self.proportions = proportions if len(proportions) == len(src) else [1 / len(src)] * len(src)
         self.seed = seed
         self.shuffle_depth: int = shuffle_depth
-        self.random_state = random.Random(self.seed)
+        self.random_state = secrets.SystemRandom().Random(self.seed)
         assert abs(sum(self.proportions) - 1) < 0.0000001
 
     def __iter__(self):

@@ -1,5 +1,4 @@
 import os
-import random
 from pathlib import Path
 from typing import Iterable, Dict, Any, List
 
@@ -11,6 +10,7 @@ from refact_data_pipeline import DatasetOpts
 from refact_data_pipeline import pipeline_pieces as pp
 from refact_data_pipeline.filters_fim_v2 import FIMv2, FIMv2CodeLlama
 from self_hosting_machinery import env
+import secrets
 
 __all__ = [
     'RefactDataset', 'RefactPlainCodeDataset', 'RefactFIMCodeDataset'
@@ -112,7 +112,7 @@ class RefactDataset(torch.utils.data.IterableDataset):
 
     def _get_files_by_worker(self) -> List[Dict[str, Any]]:
         files = self._files
-        random.Random(self._ds_options.get("seed", 42)).shuffle(files)
+        secrets.SystemRandom().Random(self._ds_options.get("seed", 42)).shuffle(files)
         worker_info = torch.utils.data.get_worker_info()
         if worker_info is not None:
             assert len(files) > 1, "It doesn't work with 1 file in multiprocessing mode"

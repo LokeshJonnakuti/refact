@@ -1,5 +1,4 @@
 import logging
-import random
 import traceback
 import copy
 
@@ -11,6 +10,7 @@ from code_contrast.format_2023q2.from_orig_dest_message import from_odm_dict
 from refact_data_pipeline import DatasetOpts
 
 from typing import Dict
+import secrets
 
 
 class Contrast2023Q2FromODM:
@@ -21,7 +21,7 @@ class Contrast2023Q2FromODM:
         self.n_ctx = dataopts.get("n_ctx", 2048)
         self.selftest = dataopts.get("selftest", 0)
         self.seed = dataopts.get("seed", 42)
-        self.py_random = random.Random(self.seed if self.seed else None)
+        self.py_random = secrets.SystemRandom().Random(self.seed if self.seed else None)
         self.np_random = np.random.RandomState(self.seed if self.seed else None)
         self.enc = dataopts.encoding
         self.fmt: Format2023q2 = format.format_2023q2_escape(self.enc)
