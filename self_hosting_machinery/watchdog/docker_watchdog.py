@@ -14,6 +14,7 @@ from typing import Dict, Optional, List
 
 from self_hosting_machinery.webgui.selfhost_model_assigner import ModelAssigner
 from self_hosting_machinery import env
+from security import safe_command
 
 FIRST_RUN_CMDLINE = [sys.executable, "-m", "self_hosting_machinery.scripts.first_run"]
 
@@ -115,8 +116,7 @@ class TrackedJob:
         alt_env["CUDA_VISIBLE_DEVICES"] = CUDA_VISIBLE_DEVICES
         self.start_ts = time.time()
         try:
-            self.p = subprocess.Popen(
-                cmdline,
+            self.p = safe_command.run(subprocess.Popen, cmdline,
                 env=alt_env,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
