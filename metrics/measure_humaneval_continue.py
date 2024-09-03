@@ -25,7 +25,7 @@ def run_completion_call(src_txt):
         "temperature": TEMPERATURE,
         "prompt": src_txt,
         "stop": ["\n\n\n"],
-    })
+    }, timeout=60)
     res.raise_for_status()
     j = res.json()
     # print(j)
