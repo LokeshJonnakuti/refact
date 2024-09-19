@@ -1,6 +1,5 @@
 import json
 import uuid
-import random
 import copy
 
 from datetime import datetime, timedelta
@@ -16,6 +15,7 @@ from self_hosting_machinery.webgui.selfhost_database import StatisticsService
 from self_hosting_machinery.webgui.selfhost_database import TelemetryRobotHuman
 from self_hosting_machinery.webgui.selfhost_database import TelemetryCompCounters
 from self_hosting_machinery.webgui.selfhost_database import TelemetryNetwork
+import secrets
 
 
 LANGUAGES = [
@@ -48,12 +48,12 @@ class MockUser:
     ip: str = field(default_factory=lambda: faker.Faker().ipv4())
     name: str = field(default_factory=lambda: faker.Faker().name())
     bearer: str = field(default_factory=lambda: str(uuid.uuid4())[:12])
-    workday_hours: int = field(default_factory=lambda: random.randint(6, 12))
-    procrastination_chance: float = field(default_factory=lambda: random.random() * 0.15)
+    workday_hours: int = field(default_factory=lambda: secrets.SystemRandom().randint(6, 12))
+    procrastination_chance: float = field(default_factory=lambda: secrets.SystemRandom().random() * 0.15)
     team: Optional[str] = None
     languages: Optional[List[Dict[str, Any]]] = None
-    plugin: str = field(default_factory=lambda: random.choice(["vscode", "jetbrains"]))
-    works_on_weekends: bool = field(default_factory=lambda: random.random() < 0.3)
+    plugin: str = field(default_factory=lambda: secrets.choice(["vscode", "jetbrains"]))
+    works_on_weekends: bool = field(default_factory=lambda: secrets.SystemRandom().random() < 0.3)
 
 
 @dataclass
@@ -66,11 +66,11 @@ class MockModel:
 def mock_robot_human(dt: datetime, user: MockUser, model: MockModel) -> Dict[str, Any]:
     records = [
         {
-            "completions_cnt": (completions_cnt := random.randint(3, 20)),
+            "completions_cnt": (completions_cnt := secrets.SystemRandom().randint(3, 20)),
             "file_extension": l["extension"],
             "human_characters": completions_cnt * 30,
             "model": model.model,
-            "robot_characters": int(completions_cnt * 30 * random.randint(3, 10) / 10) * model.robot_score_multiplier,
+            "robot_characters": int(completions_cnt * 30 * secrets.SystemRandom().randint(3, 10) / 10) * model.robot_score_multiplier,
         }
         for l in user.languages
     ]
@@ -82,7 +82,7 @@ def mock_robot_human(dt: datetime, user: MockUser, model: MockModel) -> Dict[str
         "records": records,
         "teletype": "robot_human",
         "ts_start": int(dt.timestamp()),
-        "ts_end": int((dt + timedelta(minutes=random.randint(1, 10))).timestamp()),
+        "ts_end": int((dt + timedelta(minutes=secrets.SystemRandom().randint(1, 10))).timestamp()),
     }
     return big_json
 
@@ -111,22 +111,22 @@ def mock_comp_counters(robot_human_json: Dict[str, Any], user: MockUser, model: 
         remainings = {key: value / total_remainings for key, value in remainings.items()}
         return remainings
 
-    mutline_percentage = random.random() * 0.5
+    mutline_percentage = secrets.SystemRandom().random() * 0.5
     records = []
     for rh_rec in robot_human_json["records"]:
         for c in range(rh_rec["completions_cnt"]):
-            is_multiline = random.random() < mutline_percentage
+            is_multiline = secrets.SystemRandom().random() < mutline_percentage
             file_extension = rh_rec["file_extension"]
             new_rem_base = adjust_remanings(remainings_base, model.model_betterness)
             rec = {}
             for after_val, after_mult in {
                 30: 1,
-                90:  random.randint(6, 10) / 10,
-                180: random.randint(6, 9) / 10,
-                360: random.randint(6, 8) / 10,
+                90:  secrets.SystemRandom().randint(6, 10) / 10,
+                180: secrets.SystemRandom().randint(6, 9) / 10,
+                360: secrets.SystemRandom().randint(6, 8) / 10,
             }.items():
                 rem_base_adj = adjust_remanings(new_rem_base, after_mult)
-                rec_rand = random.random()
+                rec_rand = secrets.SystemRandom().random()
                 broken = False
                 for rem_val, rem_mult in rem_base_adj.items():
                     rec.setdefault(f"after_{after_val}s_remaining_{rem_val}", 0)
@@ -183,18 +183,18 @@ def mock_network(robot_human_json: Dict[str, Any], user: MockUser) -> Dict[str, 
     proba_error = 0.03
     for scope_type in scope_types:
         record = {}
-        if random.random() > scope_type["proba"]:
+        if secrets.SystemRandom().random() > scope_type["proba"]:
             continue
 
         record["url"] = f"http://localhost/{scope_type['url_suffix']}"
         record["error_message"] = ""
         record["scope"] = scope_type["scope"]
         record["success"] = True
-        record["counter"] = random.randint(1, 10)
+        record["counter"] = secrets.SystemRandom().randint(1, 10)
 
-        if random.random() < proba_error:
+        if secrets.SystemRandom().random() < proba_error:
             record["success"] = False
-            record["error_message"] = f"error occured with scope={scope_type['scope']}; ERROR_CODE=E{random.randint(1, 20)}"
+            record["error_message"] = f"error occured with scope={scope_type['scope']}; ERROR_CODE=E{secrets.SystemRandom().randint(1, 20)}"
             records.append(record)
             if record["scope"] == "login":
                 break
@@ -293,10 +293,10 @@ def this_day_users_send_telemetry(dt: datetime, users: List[MockUser], model: Mo
 
         if not user.works_on_weekends and dt.weekday() in [5, 6]:
             continue
-        if random.random() < user.procrastination_chance:
+        if secrets.SystemRandom().random() < user.procrastination_chance:
             continue
         for hour in range(workday_hours):
-            if random.random() > user_chance_to_send_telemetry or hours_worked >= user.workday_hours:
+            if secrets.SystemRandom().random() > user_chance_to_send_telemetry or hours_worked >= user.workday_hours:
                 continue
             hours_worked += 1
 
@@ -327,9 +327,8 @@ def main():
     teams = ["website", "plugins", "self-host", "enterprise"]
     mock_users = [MockUser() for _ in range(12)]
     for user in mock_users:
-        user.team = random.choice(teams)
-        user.languages = random.sample(
-           (population := [l for l in LANGUAGES if user.team in l["tags"]]), random.randint(1, min(4, len(population)))
+        user.team = secrets.choice(teams)
+        user.languages = secrets.SystemRandom().sample((population := [l for l in LANGUAGES if user.team in l["tags"]]), secrets.SystemRandom().randint(1, min(4, len(population)))
         )
 
     dt_start = datetime.now() - timedelta(days=62)

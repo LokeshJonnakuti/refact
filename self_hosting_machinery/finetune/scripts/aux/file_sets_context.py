@@ -1,7 +1,6 @@
 import hashlib
 import json
 import os.path
-import random
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
@@ -11,6 +10,7 @@ from self_hosting_machinery.finetune.utils import traces
 from self_hosting_machinery.scripts.env import (TRAIN_UNFILTERED_FILEPATH, TEST_UNFILTERED_FILEPATH,
                                                 TRAIN_FILTERED_FILEPATH, TEST_FILTERED_FILEPATH,
                                                 LOSS_PER_HASH_DB_FILEPATH)
+import secrets
 
 __all__ = ['FileSetsContext']
 
@@ -83,7 +83,7 @@ class FileSetsContext:
                     "It's strongly recommended to choose a test set manually to be able to prevent overfitting"
                 )
             else:
-                random.shuffle(files)
+                secrets.SystemRandom().shuffle(files)
                 test_files = files[:test_files_count]
                 train_files = files[test_files_count:]
         else:

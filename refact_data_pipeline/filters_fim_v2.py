@@ -1,4 +1,3 @@
-import random
 import re
 from typing import Dict, Union, List, Optional
 from typing import Tuple
@@ -6,6 +5,7 @@ from typing import Tuple
 import numpy as np
 import termcolor
 from refact_data_pipeline import DatasetOpts
+import secrets
 
 
 def _line_sep_by_line(line: str):
@@ -40,8 +40,8 @@ def _random_trim_context(
     p1 = _softmax([np.log(len(lines) - i) ** 2 for i in range(len(lines))])
     p2 = list(reversed(p1))
     lines_indexes = list(range(len(lines)))
-    cursor_1 = random.choice(lines_indexes, p=p1)
-    cursor_2 = random.choice(lines_indexes, p=p2)
+    cursor_1 = secrets.choice(lines_indexes, p=p1)
+    cursor_2 = secrets.choice(lines_indexes, p=p2)
     cursor_1, cursor_2 = sorted((cursor_1, cursor_2))
     lines = lines[cursor_1:cursor_2]
     if len(lines) < min_rows:

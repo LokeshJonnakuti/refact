@@ -1,4 +1,3 @@
-import random
 from typing import Any, Dict, List
 
 import binpacking
@@ -7,6 +6,7 @@ import psutil
 from scipy.special import softmax
 
 from refact_data_pipeline import DatasetOpts
+import secrets
 
 ItemT = Dict[str, Any]
 
@@ -143,7 +143,7 @@ class DensePacker:
         self.inner_filter_iter = iter(inner_filter)
         self.enc = dataopts.encoding
         self.n_ctx: int = dataopts['n_ctx']
-        self.random = random.Random(dataopts.get('seed', 42))
+        self.random = secrets.SystemRandom().Random(dataopts.get('seed', 42))
         self.np_random = np.random.RandomState(dataopts.get('seed', 42))
         self.pack_single: bool = dataopts.get('pack_single', 0) == 1
         self.pack_complete: bool = dataopts.get('pack_complete', 1) == 1

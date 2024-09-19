@@ -1,7 +1,7 @@
-import random
 from code_contrast.format_2023q2.element import Element, ElementPackingContext, ElementUnpackContext
 from dataclasses import dataclass, field
 from typing import List, Tuple, Optional, Set
+import secrets
 
 
 @dataclass
@@ -53,8 +53,8 @@ class FileElement(Element):
         self._lineheaders_cnt_n = 0
         self._lineheaders_aux_n = 0
         for er in self._expanding_ranges:
-            er.works0 = 1 if not cx.for_training else random.randint(0, 50)
-            er.works1 = 1 if not cx.for_training else random.randint(0, 50)
+            er.works0 = 1 if not cx.for_training else secrets.SystemRandom().randint(0, 50)
+            er.works1 = 1 if not cx.for_training else secrets.SystemRandom().randint(0, 50)
             er.line0expand = er.line0
             er.line1expand = er.line1
             for line in range(er.line0expand, er.line1expand + 1):

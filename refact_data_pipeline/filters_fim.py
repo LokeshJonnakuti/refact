@@ -1,8 +1,8 @@
-import random
 
 from refact_data_pipeline import DatasetOpts
 
 from typing import Dict, Union
+import secrets
 
 
 class SymbolsMiddleSplit:
@@ -57,7 +57,7 @@ class FIM:
             self.enc.EOT,
         ]
         assert len(set(self.special_tokens)) == len(self.special_tokens)
-        self.random = random.Random(dataopts.get("seed", 42))
+        self.random = secrets.SystemRandom().Random(dataopts.get("seed", 42))
         self.splitter = SymbolsMiddleSplit(self.random)
 
     def __iter__(self):
