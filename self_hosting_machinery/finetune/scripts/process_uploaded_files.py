@@ -15,6 +15,7 @@ from self_hosting_machinery import env
 import self_hosting_machinery.finetune.utils.traces as traces
 
 from typing import List, Dict, Any, Iterable, Tuple
+from security import safe_command
 
 
 EXE = os.path.expanduser("~/code/linguist/bin/smc-linguist")
@@ -66,7 +67,7 @@ def stats_save():
 class LinguistProcess:
 
     def __init__(self):
-        self._process = subprocess.Popen([EXE], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        self._process = safe_command.run(subprocess.Popen, [EXE], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
         self._inside_pipe = 0
 
     def push(self, filename: str):
